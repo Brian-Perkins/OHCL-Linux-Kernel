@@ -53,10 +53,12 @@ extern bool tsc_async_resets;
 extern bool tsc_store_and_check_tsc_adjust(bool bootcpu);
 extern void tsc_verify_tsc_adjust(bool resume);
 extern void check_tsc_sync_target(void);
+extern void tsc_apply_tsc_update_to_tsc_adjust(void);
 #else
 static inline bool tsc_store_and_check_tsc_adjust(bool bootcpu) { return false; }
 static inline void tsc_verify_tsc_adjust(bool resume) { }
 static inline void check_tsc_sync_target(void) { }
+static inline void tsc_apply_tsc_update_to_tsc_adjust(void) { }
 #endif
 
 extern int notsc_setup(char *);

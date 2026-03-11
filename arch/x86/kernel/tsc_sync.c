@@ -172,6 +172,19 @@ bool __init tsc_store_and_check_tsc_adjust(bool bootcpu)
 	return false;
 }
 
+void tsc_apply_tsc_update_to_tsc_adjust(void)
+{
+	struct tsc_adjust *cur = this_cpu_ptr(&tsc_adjust);
+	s64 newval;
+
+	if (!boot_cpu_has(X86_FEATURE_TSC_ADJUST))
+		return;
+
+	rdmsrl(MSR_IA32_TSC_ADJUST, newval);
+	cur->bootval = newval;
+	cur->adjusted = newval;
+}
+
 #else /* !CONFIG_SMP */
 
 /*
@@ -236,6 +249,27 @@ bool tsc_store_and_check_tsc_adjust(bool bootcpu)
 	 * test:
 	 */
 	return true;
+}
+
+/*
+ * Updates the expected TSC_ADJUST value for all CPUs. Other CPUs must be stopped.
+ */
+void tsc_apply_tsc_update_to_tsc_adjust(void)
+{
+	int cpu;
+	s64 delta, newval;
+
+	if (!boot_cpu_has(X86_FEATURE_TSC_ADJUST))
+		return;
+
+	rdmsrl(MSR_IA32_TSC_ADJUST, newval);
+	delta = newval - this_cpu_ptr(&tsc_adjust)->adjusted;
+	for_each_online_cpu(cpu) {
+		struct tsc_adjust *ref = per_cpu_ptr(&tsc_adjust, cpu);
+
+		ref->bootval += delta;
+		ref->adjusted += delta;
+	}
 }
 
 /*
