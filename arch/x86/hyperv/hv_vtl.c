@@ -266,6 +266,14 @@ int __init hv_vtl_early_init(void)
 	machine_ops.restart = hv_vtl_restart;
 
 	/*
+	 * Disable TSC_ADJUST so that the periodic TSC sync check timer
+	 * (start_sync_check_timer) and related TSC adjustment logic are
+	 * skipped. The TSC exposed via Hyper-V will be consistent across
+	 * processors.
+	 */
+	setup_clear_cpu_cap(X86_FEATURE_TSC_ADJUST);
+
+	/*
 	 * `boot_cpu_has` returns the runtime feature support,
 	 * and here is the earliest it can be used.
 	 */

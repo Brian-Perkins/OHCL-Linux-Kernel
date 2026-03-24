@@ -894,7 +894,7 @@ static int restore_partition_time_with_cpus_stopped(void *data)
 	}
 
 	/* Restore clock state using current TSC value. */
-	tsc_apply_tsc_update_to_tsc_adjust();
+	// tsc_apply_tsc_update_to_tsc_adjust();
 	hv_restore_sched_clock_state();
 	timekeeping_resume();
 	sched_clock_resume();
